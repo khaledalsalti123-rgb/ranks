@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة علامات الطلاب</title>
+    <meta name="description" content="نظام لإدارة وتحليل علامات الطلاب وتصنيفهم حسب الفئات">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 50%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .total-mark-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        input[type="number"] {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .student-input {
+            position: relative;
+        }
+
+        .student-input input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .student-input input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .student-input .label {
+            position: absolute;
+            top: -0.5rem;
+            right: 0.5rem;
+            background: white;
+            padding: 0 0.25rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .student-input.new-animation {
+            animation: popIn 0.3s ease-out;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            border: 1px solid #bae6fd;
+        }
+
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-color: #fbbf24;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+
+        .stat-label {
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .category-card {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: scale(1.05);
+        }
+
+        .category-card.excellent { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .category-card.very-good { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .category-card.good { background: linear-gradient(135deg, #eab308, #ca8a04); }
+        .category-card.average { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .category-card.fail { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .category-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .category-name {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .category-range {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        .hint {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.75rem; }
+            .students-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 نظام إدارة علامات الطلاب</h1>
+            <p class="subtitle">أدخل علامات الطلاب واحصل على تحليل شامل للنتائج</p>
+        </header>
+
+        <div class="card">
+            <h2 class="card-title">⚙️ إعدادات العلامة</h2>
+            <div class="total-mark-section">
+                <label for="totalMark">العلامة الكلية:</label>
+                <input type="number" id="totalMark" value="100" min="1">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">👨‍🎓 علامات الطلاب</h2>
+            <p class="hint">اضغط Tab للانتقال وإضافة طالب جديد</p>
+            <div class="students-grid" id="studentsGrid">
+                <div class="student-input new-animation">
+                    <span class="label">طالب 1</span>
+                    <input type="number" min="0" placeholder="العلامة">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="calculateResults()">📊 عرض النتائج</button>
+
+        <div class="results" id="results">
+            <div class="card">
+                <h2 class="card-title">📈 الإحصائيات العامة</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalStudents">0</div>
+                        <div class="stat-label">عدد الطلاب</div>
+                    </div>
+                    <div class="stat-card highlight">
+                        <div class="stat-value" id="passRate">0%</div>
+                        <div class="stat-label">نسبة النجاح</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="classAverage">0</div>
+                        <div class="stat-label">معدل الصف</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📋 توزيع الفئات</h2>
+                <div class="categories-grid">
+                    <div class="category-card excellent">
+                        <div class="category-count" id="excellentCount">0</div>
+                        <div class="category-name">ممتاز</div>
+                        <div class="category-range">91 - 100</div>
+                    </div>
+                    <div class="category-card very-good">
+                        <div class="category-count" id="veryGoodCount">0</div>
+                        <div class="category-name">جيد جداً</div>
+                        <div class="category-range">81 - 90</div>
+                    </div>
+                    <div class="category-card good">
+                        <div class="category-count" id="goodCount">0</div>
+                        <div class="category-name">جيد</div>
+                        <div class="category-range">61 - 80</div>
+                    </div>
+                    <div class="category-card average">
+                        <div class="category-count" id="averageCount">0</div>
+                        <div class="category-name">متوسط</div>
+                        <div class="category-range">41 - 60</div>
+                    </div>
+                    <div class="category-card fail">
+                        <div class="category-count" id="failCount">0</div>
+                        <div class="category-name">رسوب</div>
+                        <div class="category-range">0 - 40</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const studentsGrid = document.getElementById('studentsGrid');
+        let studentCount = 1;
+
+        function addStudent() {
+            studentCount++;
+            const div = document.createElement('div');
+            div.className = 'student-input new-animation';
+            div.innerHTML = `
+                <span class="label">طالب ${studentCount}</span>
+                <input type="number" min="0" placeholder="العلامة">
+            `;
+            studentsGrid.appendChild(div);
+            
+            const newInput = div.querySelector('input');
+            newInput.addEventListener('keydown', handleTab);
+            newInput.focus();
+            
+            setTimeout(() => div.classList.remove('new-animation'), 300);
+        }
+
+        function handleTab(e) {
+            if (e.key === 'Tab' && !e.shiftKey) {
+                const inputs = studentsGrid.querySelectorAll('input');
+                const lastInput = inputs[inputs.length - 1];
+                
+                if (e.target === lastInput) {
+                    e.preventDefault();
+                    addStudent();
+                }
+            }
+        }
+
+        // Add event listener to first input
+        studentsGrid.querySelector('input').addEventListener('keydown', handleTab);
+
+        function calculateResults() {
+            const totalMark = parseFloat(document.getElementById('totalMark').value) || 100;
+            const inputs = studentsGrid.querySelectorAll('input');
+            const marks = [];
+
+            inputs.forEach(input => {
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    marks.push(value);
+                }
+            });
+
+            if (marks.length === 0) {
+                alert('الرجاء إدخال علامة طالب واحد على الأقل');
+                return;
+            }
+
+            // Calculate percentages
+            const percentages = marks.map(m => (m / totalMark) * 100);
+
+            // Count categories
+            let excellent = 0, veryGood = 0, good = 0, average = 0, fail = 0;
+            
+            percentages.forEach(p => {
+                if (p >= 91) excellent++;
+                else if (p >= 81) veryGood++;
+                else if (p >= 61) good++;
+                else if (p >= 40) average++;
+                else fail++;
+            });
+
+            // Calculate stats
+            const totalStudents = marks.length;
+            const passCount = excellent + veryGood + good + average;
+            const passRate = ((passCount / totalStudents) * 100).toFixed(1);
+            const classAverage = (marks.reduce((a, b) => a + b, 0) / totalStudents).toFixed(1);
+
+            // Update UI
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('passRate').textContent = passRate + '%';
+            document.getElementById('classAverage').textContent = classAverage;
+            document.getElementById('excellentCount').textContent = excellent;
+            document.getElementById('veryGoodCount').textContent = veryGood;
+            document.getElementById('goodCount').textContent = good;
+            document.getElementById('averageCount').textContent = average;
+            document.getElementById('failCount').textContent = fail;
+
+            // Show results
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
