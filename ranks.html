@@ -368,7 +368,8 @@
         }
 
         function handleTab(e) {
-            if (e.key === 'Tab' || e.key == 'enter' && !e.shiftKey) {
+            console.log(e.key)
+            if (e.key === 'Tab' || e.key == 'Enter' && !e.shiftKey) {
                 const inputs = studentsGrid.querySelectorAll('input');
                 const lastInput = inputs[inputs.length - 1];
                 
