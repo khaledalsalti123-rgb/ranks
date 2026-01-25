@@ -73,6 +73,36 @@
             color: #374151;
         }
 
+        .mark-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .mark-option {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mark-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .mark-option.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
         input[type="number"] {
             padding: 0.75rem 1rem;
             border: 2px solid #e5e7eb;
@@ -263,6 +293,8 @@
             body { padding: 1rem; }
             h1 { font-size: 1.75rem; }
             .students-grid { grid-template-columns: repeat(3, 1fr); }
+            .mark-options { flex-direction: column; }
+            .mark-option { width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -274,10 +306,15 @@
         </header>
 
         <div class="card">
-            <h2 class="card-title">⚙️ إعدادات العلامة</h2>
+            <h2 class="card-title">⚙️ إعدادات العلامة الكلية</h2>
             <div class="total-mark-section">
-                <label for="totalMark">العلامة الكلية:</label>
-                <input type="number" id="totalMark" value="100" min="1">
+                <label>اختر العلامة الكلية:</label>
+                <div class="mark-options">
+                    <button class="mark-option active" data-mark="25">25</button>
+                    <button class="mark-option" data-mark="100">100</button>
+                    <button class="mark-option" data-mark="200">200</button>
+                    <button class="mark-option" data-mark="400">400</button>
+                </div>
             </div>
         </div>
 
@@ -319,27 +356,27 @@
                     <div class="category-card excellent">
                         <div class="category-count" id="excellentCount">0</div>
                         <div class="category-name">ممتاز</div>
-                        <div class="category-range">91 - 100</div>
+                        <div class="category-range">91 - 100%</div>
                     </div>
                     <div class="category-card very-good">
                         <div class="category-count" id="veryGoodCount">0</div>
                         <div class="category-name">جيد جداً</div>
-                        <div class="category-range">81 - 90</div>
+                        <div class="category-range">81 - 90%</div>
                     </div>
                     <div class="category-card good">
                         <div class="category-count" id="goodCount">0</div>
                         <div class="category-name">جيد</div>
-                        <div class="category-range">61 - 80</div>
+                        <div class="category-range">61 - 80%</div>
                     </div>
                     <div class="category-card average">
                         <div class="category-count" id="averageCount">0</div>
                         <div class="category-name">متوسط</div>
-                        <div class="category-range">41 - 60</div>
+                        <div class="category-range">40 - 60%</div>
                     </div>
                     <div class="category-card fail">
                         <div class="category-count" id="failCount">0</div>
                         <div class="category-name">رسوب</div>
-                        <div class="category-range">0 - 40</div>
+                        <div class="category-range">0 - 39%</div>
                     </div>
                 </div>
             </div>
@@ -348,7 +385,21 @@
 
     <script>
         const studentsGrid = document.getElementById('studentsGrid');
+        const markOptions = document.querySelectorAll('.mark-option');
         let studentCount = 1;
+        let totalMark = 25; // Default value
+
+        // Set up mark option buttons
+        markOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                markOptions.forEach(opt => opt.classList.remove('active'));
+                // Add active class to clicked option
+                this.classList.add('active');
+                // Update total mark
+                totalMark = parseInt(this.dataset.mark);
+            });
+        });
 
         function addStudent() {
             studentCount++;
@@ -356,7 +407,7 @@
             div.className = 'student-input new-animation';
             div.innerHTML = `
                 <span class="label">طالب ${studentCount}</span>
-                <input type="number" min="0" placeholder="العلامة">
+                <input type="number" min="0" max="${totalMark}" placeholder="العلامة">
             `;
             studentsGrid.appendChild(div);
             
@@ -368,8 +419,7 @@
         }
 
         function handleTab(e) {
-            console.log(e.key)
-            if (e.key === 'Tab' || e.key == 'Enter' && !e.shiftKey) {
+            if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
                 const inputs = studentsGrid.querySelectorAll('input');
                 const lastInput = inputs[inputs.length - 1];
                 
@@ -384,13 +434,18 @@
         studentsGrid.querySelector('input').addEventListener('keydown', handleTab);
 
         function calculateResults() {
-            const totalMark = parseFloat(document.getElementById('totalMark').value) || 100;
             const inputs = studentsGrid.querySelectorAll('input');
             const marks = [];
 
+            // Update max attribute for all inputs based on selected total mark
+            inputs.forEach(input => {
+                input.max = totalMark;
+            });
+
+            // Collect valid marks
             inputs.forEach(input => {
                 const value = parseFloat(input.value);
-                if (!isNaN(value) && value >= 0) {
+                if (!isNaN(value) && value >= 0 && value <= totalMark) {
                     marks.push(value);
                 }
             });
@@ -434,6 +489,9 @@
             document.getElementById('results').classList.add('show');
             document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         }
+
+        // Initialize max attribute for first input
+        document.querySelector('.student-input input').max = totalMark;
     </script>
 </body>
 </html>
